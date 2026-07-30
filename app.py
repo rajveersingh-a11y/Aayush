@@ -64,38 +64,76 @@ div[data-testid="stStatusWidget"] {visibility: hidden !important;}
     z-index: 10;
 }
 
-/* Background Animation */
+/* Layer 1 & Noise & Vignette */
 .stApp {
-    background: linear-gradient(45deg, #090B1A, #13132B, #1C1838, #6C63FF, #B86BFF) !important;
-    background-size: 400% 400% !important;
-    animation: gradientBG 15s ease infinite !important;
-    color: #ffffff;
+    background: linear-gradient(135deg, #0F1021 0%, #1A1638 50%, #2A234B 100%) !important;
+    background-attachment: fixed !important;
+    color: #F8F7FF;
     font-family: 'Inter', sans-serif;
+    position: relative;
+    overflow-x: hidden;
 }
 
+/* Layer 3: Noise Texture */
 .stApp::before {
     content: '';
     position: fixed;
-    top: 50%; left: 50%; width: 100vw; height: 100vh;
-    transform: translate(-50%, -50%);
-    background: radial-gradient(circle at 50% 50%, rgba(168, 85, 247, 0.12) 0%, transparent 60%);
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    opacity: 0.03;
     pointer-events: none;
-    z-index: 0;
+    z-index: 1;
 }
 
+/* Layer 6: Vignette & Spotlight */
 .stApp::after {
     content: '';
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background: radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.4) 150%);
+    background: radial-gradient(circle at 50% 50%, rgba(196, 181, 253, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, transparent 60%, rgba(15, 16, 33, 0.7) 120%);
     pointer-events: none;
-    z-index: 9999;
+    z-index: 2;
 }
 
-@keyframes gradientBG {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+/* Layer 2: Aurora Blobs */
+.aurora-blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    z-index: 0;
+    pointer-events: none;
+    animation: auroraMove 40s ease-in-out infinite alternate;
+}
+
+.aurora-1 {
+    top: -10%; left: -10%;
+    width: 60vw; height: 60vw;
+    background: radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 70%); /* #8B5CF6 */
+    animation-duration: 45s;
+}
+
+.aurora-2 {
+    bottom: -20%; right: -10%;
+    width: 70vw; height: 70vw;
+    background: radial-gradient(circle, rgba(142, 197, 255, 0.5) 0%, transparent 70%); /* #8EC5FF */
+    animation-duration: 55s;
+    animation-direction: alternate-reverse;
+}
+
+.aurora-3 {
+    top: 40%; left: 30%;
+    width: 50vw; height: 50vw;
+    background: radial-gradient(circle, rgba(240, 171, 252, 0.4) 0%, transparent 70%); /* #F0ABFC */
+    animation-duration: 60s;
+}
+
+@keyframes auroraMove {
+    0% { transform: translate(0, 0) scale(1) rotate(0deg); }
+    33% { transform: translate(5vw, 5vh) scale(1.1) rotate(5deg); }
+    66% { transform: translate(-5vw, 10vh) scale(0.95) rotate(-5deg); }
+    100% { transform: translate(-10vw, -5vh) scale(1.05) rotate(2deg); }
 }
 
 /* Typography for Home Hero */
@@ -293,28 +331,41 @@ div[data-testid="stStatusWidget"] {visibility: hidden !important;}
 /* Floating particles CSS (for JS injection) */
 .particle {
     position: fixed;
-    background: white;
+    background: #F8F7FF;
     border-radius: 50%;
     animation: floatParticle linear infinite;
-    opacity: 0.5;
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8);
+    opacity: 0.6;
+    box-shadow: 0 0 10px rgba(196, 181, 253, 0.8), 0 0 4px #F8F7FF;
     pointer-events: none;
-    z-index: 0;
+    z-index: 3;
 }
 @keyframes floatParticle {
-    0% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+    0% { transform: translate(0, 100vh) scale(0.5); opacity: 0; }
     10% { opacity: 0.8; }
     90% { opacity: 0.8; }
-    100% { transform: translateY(-100vh) scale(1); opacity: 0; }
+    100% { transform: translate(calc(10vw - 20vw * var(--drift-dir, 0.5)), -100vh) scale(1); opacity: 0; }
 }
-/* Decorative Elements & Confetti */
-.decor-container { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; pointer-events: none; overflow: hidden; z-index: 5; }
-.decor { position: absolute; opacity: 0; animation: twinkleFloat 3s infinite ease-in-out alternate; }
+/* Decorative Elements */
+.decor-container { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; pointer-events: none; overflow: hidden; z-index: 4; }
+.decor { position: absolute; opacity: 0; animation: twinkleFloat 4s infinite ease-in-out alternate; }
+.butterfly { position: absolute; animation: butterflyFloat 20s infinite linear; filter: drop-shadow(0 0 8px rgba(196,181,253,0.5)); z-index: 5; }
 
 @keyframes twinkleFloat {
     0% { transform: translateY(0) scale(1); opacity: 0.1; }
-    50% { opacity: 0.6; }
-    100% { transform: translateY(-30px) scale(1.1); opacity: 0.3; }
+    50% { opacity: 0.8; filter: drop-shadow(0 0 8px #F8F7FF); }
+    100% { transform: translateY(-15px) scale(1.1); opacity: 0.2; }
+}
+@keyframes butterflyFloat {
+    0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.8; }
+    50% { transform: translate(15vw, -20vh) rotate(15deg); }
+    90% { opacity: 0.8; }
+    100% { transform: translate(30vw, -40vh) rotate(-10deg); opacity: 0; }
+}
+.moon { position: absolute; top: 10%; right: 10%; font-size: 3.5rem; filter: drop-shadow(0 0 20px rgba(248, 247, 255, 0.6)); animation: subtlePulse 8s infinite alternate; z-index: 2; }
+@keyframes subtlePulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 15px rgba(248, 247, 255, 0.4)); }
+    100% { transform: scale(1.05); filter: drop-shadow(0 0 30px rgba(248, 247, 255, 0.8)); }
 }
 
 /* Responsive */
@@ -458,21 +509,34 @@ components.html("""
         glow = parentDoc.createElement('div');
         glow.id = 'custom-mouse-glow';
         glow.style.position = 'fixed';
-        glow.style.width = '600px';
-        glow.style.height = '600px';
-        glow.style.background = 'radial-gradient(circle, rgba(184, 107, 255, 0.15) 0%, transparent 60%)';
+        glow.style.width = '500px';
+        glow.style.height = '500px';
+        glow.style.background = 'radial-gradient(circle, rgba(196, 181, 253, 0.12) 0%, transparent 50%)';
         glow.style.borderRadius = '50%';
         glow.style.pointerEvents = 'none';
         glow.style.transform = 'translate(-50%, -50%)';
-        glow.style.zIndex = '0';
+        glow.style.zIndex = '3';
         glow.style.mixBlendMode = 'screen';
-        glow.style.transition = 'width 0.3s, height 0.3s';
         parentDoc.body.appendChild(glow);
 
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let glowX = mouseX;
+        let glowY = mouseY;
+        
         parentDoc.addEventListener('mousemove', (e) => {
-            glow.style.left = e.clientX + 'px';
-            glow.style.top = e.clientY + 'px';
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
+
+        function animateGlow() {
+            glowX += (mouseX - glowX) * 0.05;
+            glowY += (mouseY - glowY) * 0.05;
+            glow.style.left = glowX + 'px';
+            glow.style.top = glowY + 'px';
+            requestAnimationFrame(animateGlow);
+        }
+        animateGlow();
     }
 
     // 2. Particles
@@ -482,14 +546,15 @@ components.html("""
         particlesContainer.id = 'custom-particles';
         parentDoc.body.appendChild(particlesContainer);
         
-        for (let i = 0; i < 15; i++) {
+        for (let i = 0; i < 25; i++) {
             let p = parentDoc.createElement('div');
             p.classList.add('particle');
-            p.style.width = Math.random() * 3 + 1 + 'px';
+            p.style.width = Math.random() * 2 + 1 + 'px';
             p.style.height = p.style.width;
             p.style.left = Math.random() * 100 + 'vw';
-            p.style.animationDuration = Math.random() * 20 + 10 + 's';
-            p.style.animationDelay = Math.random() * 20 + 's';
+            p.style.setProperty('--drift-dir', Math.random());
+            p.style.animationDuration = Math.random() * 30 + 15 + 's';
+            p.style.animationDelay = Math.random() * 15 + 's';
             particlesContainer.appendChild(p);
         }
     }
@@ -549,6 +614,11 @@ import random
 random.seed(42) # Consistent random placement
 decor_html = '<div class="decor-container">'
 
+# Aurora blobs injected directly here so they exist across all views
+decor_html += '<div class="aurora-blob aurora-1"></div>'
+decor_html += '<div class="aurora-blob aurora-2"></div>'
+decor_html += '<div class="aurora-blob aurora-3"></div>'
+
 # 20 perfectly balanced particles
 particle_coords = [
     (10, 15), (25, 30), (35, 10), 
@@ -557,22 +627,26 @@ particle_coords = [
     (82, 60), (95, 20), (15, 50)
 ]
 for t, l in particle_coords:
-    d, s = random.uniform(0, 3), random.uniform(0.6, 1.2)
+    d, s = random.uniform(0, 4), random.uniform(0.4, 0.8)
     decor_html += f'<div class="decor" style="top:{t}%; left:{l}%; animation-delay:{d}s; font-size:{s}rem;">✨</div>'
     
-# 8 perfectly balanced stars
+# 12 perfectly balanced stars
 star_coords = [
-    (8, 25), (32, 8),
-    (68, 15), (92, 65)
+    (8, 25), (32, 8), (45, 85),
+    (68, 15), (92, 65), (20, 70)
 ]
 for t, l in star_coords:
-    d, s = random.uniform(0, 3), random.uniform(0.8, 1.6)
+    d, s = random.uniform(0, 4), random.uniform(0.6, 1.2)
     decor_html += f'<div class="decor" style="top:{t}%; left:{l}%; animation-delay:{d}s; font-size:{s}rem;">⭐</div>'
     
-# Fixed elegant elements
-decor_html += '<div class="decor" style="top:25%; left:12%; animation-delay:1s; font-size:2rem;">🦋</div>'
-decor_html += '<div class="decor" style="bottom:30%; right:15%; animation-delay:2s; font-size:1.5rem;">🦋</div>'
-decor_html += '<div class="decor" style="top:12%; right:18%; animation-delay:0s; font-size:2.5rem;">🌙</div>'
+# Moon
+decor_html += '<div class="moon">🌙</div>'
+
+# Floating Butterflies
+decor_html += '<div class="butterfly" style="top:70%; left:-10%; animation-delay:0s; font-size:1.8rem; animation-duration:25s;">🦋</div>'
+decor_html += '<div class="butterfly" style="top:40%; left:-5%; animation-delay:12s; font-size:1.4rem; animation-duration:35s;">🦋</div>'
+decor_html += '<div class="butterfly" style="top:85%; left:30%; animation-delay:8s; font-size:2rem; animation-duration:28s;">🦋</div>'
+
 decor_html += '</div>'
 
 st.markdown(decor_html, unsafe_allow_html=True)
