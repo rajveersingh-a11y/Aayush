@@ -623,7 +623,9 @@ elif st.session_state.view == 'memories':
     """, unsafe_allow_html=True)
     
     # Image discovery
-    images_dir = Path("images")
+    images_dir = Path("Images")
+    if not images_dir.exists():
+        images_dir = Path("images")
     valid_exts = {".jpg", ".jpeg", ".png", ".webp"}
     image_paths = []
     
